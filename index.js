@@ -47,59 +47,89 @@ const formatData = (data) => {
   return dataObject;
 };
 
-// Route: GET /prices
-app.get("/prices", async (req, res) => {
-  // Tec Data
+// Helper function to calculate percentage change
+function calculatePercentageChange(openPrice, closePrice) {
+  return ((closePrice - openPrice) / openPrice) * 100;
+}
 
+let previousPrices = {};
+
+app.get("/prices", async (req, res) => {
   const url =
     "http://212.117.171.68:5000/Connect?user=100476&password=T%2BDmV0Kk&host=57.128.140.226&port=443";
 
-  fetch(url, {
-    method: "GET",
-    headers: {
-      "Content-Type": "text/plain",
-    },
-  })
-    .then(async (response) => {
-      if (!response.ok) {
-        throw new Error("Network response was not ok " + response.statusText);
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: { "Content-Type": "text/plain" },
+    });
+    if (!response.ok) {
+      throw new Error("Network response was not ok " + response.statusText);
+    }
+
+    const textData = await response.text();
+
+    const pricesData = await fetchData(
+      `http://212.117.171.68:5000/GetQuoteMany?id=${textData}&symbols=AMZN&symbols=TSLA&symbols=AAPL&symbols=GOOGL&symbols=NVDA&symbols=USDJPY&symbols=EURUSD&symbols=GBPUSD&symbols=USDCAD&symbols=EURGBP&symbols=XAUUSD&symbols=XAGUSD&symbols=WTIUSD&symbols=SPXUSD&symbols=DJIUSD&symbols=NDXUSD&symbols=FTSGBP&symbols=DAXEUR&symbols=BTCUSD&symbols=ETHUSD&symbols=XRPUSD&symbols=LTCUSD&symbols=ADAUSD&symbols=BRNUSD&symbols=NGCUSD`
+    );
+
+    const openCloseData = await fetchData(
+      `http://212.117.171.68:5000/PriceHistoryTodayMany?id=${textData}&symbols=AMZN&symbols=TSLA&symbols=AAPL&symbols=GOOGL&symbols=NVDA&symbols=USDJPY&symbols=EURUSD&symbols=GBPUSD&symbols=USDCAD&symbols=EURGBP&symbols=XAUUSD&symbols=XAGUSD&symbols=WTIUSD&symbols=SPXUSD&symbols=DJIUSD&symbols=NDXUSD&symbols=FTSGBP&symbols=DAXEUR&symbols=BTCUSD&symbols=ETHUSD&symbols=XRPUSD&symbols=LTCUSD&symbols=ADAUSD&symbols=BRNUSD&symbols=NGCUSD&timeFrame=1440`
+    );
+
+    let dataObject = formatData(pricesData);
+
+    // Add dailyChange to the dataObject
+    openCloseData.forEach(({ symbol, bars }) => {
+      const lastBar = bars[bars.length - 1];
+      const dailyChange = calculatePercentageChange(
+        lastBar.openPrice,
+        lastBar.closePrice
+      );
+      if (dataObject[symbol]) {
+        dataObject[symbol].dailyChange = dailyChange.toFixed(2) + "%";
       }
-
-      const textData = await response.text(); // Await the promise
-      console.log("Response as Text:", textData); // Log the resolved text data
-
-      try {
-        const pricesData = await fetchData(
-          `http://212.117.171.68:5000/GetQuoteMany?id=${textData}&symbols=AMZN&symbols=TSLA&symbols=AAPL&symbols=GOOGL&symbols=NVDA&symbols=USDJPY&symbols=EURUSD&symbols=GBPUSD&symbols=USDCAD&symbols=EURGBP&symbols=XAUUSD&symbols=XAGUSD&symbols=WTIUSD&symbols=SPXUSD&symbols=DJIUSD&symbols=NDXUSD&symbols=FTSGBP&symbols=DAXEUR&symbols=BTCUSD&symbols=ETHUSD&symbols=XRPUSD&symbols=LTCUSD&symbols=ADAUSD&symbols=BRNUSD&symbols=NGCUSD`
-        );
-        res.json(formatData(pricesData));
-      } catch (error) {
-        res.status(500).json({ error: "Failed to fetch prices data" });
-      }
-    })
-
-    .catch((error) => {
-      console.error("There was a problem with the fetch operation:", error);
     });
 
-  // try {
-  //   const dataKey = await fetchData(
-  //     "http://212.117.171.68:5000/Connect?user=100476&password=T%2BDmV0Kk&host=57.128.140.226&port=443"
-  //   );
+    // Add price direction indicator
+    for (const symbol in dataObject) {
+      const currentPrice = dataObject[symbol].bid;
+      const percentDifference = dataObject[symbol].percentDifference;
 
-  //   console.log(dataKey);
+      // Determine price direction (up, down, unchanged)
+      if (previousPrices[symbol] !== undefined) {
+        if (currentPrice > previousPrices[symbol]) {
+          dataObject[symbol].biddirection = "up";
+        } else if (currentPrice < previousPrices[symbol]) {
+          dataObject[symbol].biddirection = "down";
+        } else {
+          dataObject[symbol].biddirection = "unchanged";
+        }
+      } else {
+        dataObject[symbol].biddirection = "new"; // First-time fetch, no previous data
+      }
+      // Determine price direction (up, down, unchanged)
+      if (previousPrices[symbol] !== undefined) {
+        if (percentDifference > previousPrices[symbol]) {
+          dataObject[symbol].percentagedirection = "up";
+        } else if (percentDifference < previousPrices[symbol]) {
+          dataObject[symbol].percentagedirection = "down";
+        } else {
+          dataObject[symbol].percentagedirection = "unchanged";
+        }
+      } else {
+        dataObject[symbol].percentagedirection = "new"; // First-time fetch, no previous data
+      }
 
-  //   try {
-  //     const pricesData = await fetchData(
-  //       `http://212.117.171.68:5000/GetQuoteMany?id=9b2ab868-1edf-4edc-b083-99edd08e0ad7&symbols=AMZN&symbols=TSLA&symbols=AAPL&symbols=GOOGL&symbols=NVDA&symbols=USDJPY&symbols=EURUSD&symbols=GBPUSD&symbols=USDCAD&symbols=EURGBP&symbols=XAUUSD&symbols=XAGUSD&symbols=WTIUSD&symbols=SPXUSD&symbols=DJIUSD&symbols=NDXUSD&symbols=FTSGBP&symbols=DAXEUR&symbols=BTCUSD&symbols=ETHUSD&symbols=XRPUSD&symbols=LTCUSD&symbols=ADAUSD&symbols=BRNUSD&symbols=NGCUSD`
-  //     );
-  //     res.json(formatData(pricesData));
-  //   } catch (error) {
-  //     res.status(500).json({ error: "Failed to fetch prices data" });
-  //   }
-  // } catch (error) {
-  //   res.status(500).json({ error: "Failed to fetch prices data" });
-  // }
+      // Store the current price for the next comparison
+      previousPrices[symbol] = currentPrice;
+    }
+
+    res.json(dataObject);
+  } catch (error) {
+    console.error("There was a problem with the fetch operation:", error);
+    res.status(500).json({ error: "Failed to fetch prices data" });
+  }
 });
 
 app.listen(process.env.PORT || 3001, function () {
