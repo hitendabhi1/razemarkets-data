@@ -162,9 +162,19 @@ app.get("/prices", async (req, res) => {
       } else {
         dataObject[symbol].biddirection = "new"; // First-time fetch, no previous data
       }
+      // Determine price direction (up, down, unchanged)
+      if (previousPrices[symbol] !== undefined) {
+        if (dailyChange > previousPrices[symbol]) {
+          dataObject[symbol].percentagedirection = "up";
+        } else if (dailyChange < previousPrices[symbol]) {
+          dataObject[symbol].percentagedirection = "down";
+        } else {
+          dataObject[symbol].percentagedirection = "unchanged";
+        }
+      } else {
+        dataObject[symbol].percentagedirection = "new"; // First-time fetch, no previous data
+      }
 
-      dataObject[symbol].percentagedirection =
-        Math.sign(dailyChange) === -1 ? "down" : "up";
       // Store the current price for the next comparison
       previousPrices[symbol] = currentPrice;
     }
