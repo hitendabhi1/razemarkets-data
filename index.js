@@ -58,7 +58,7 @@ const formatData = (data) => {
   data.forEach((item) => {
     const bid = item.bid;
     const ask = item.ask;
-    const splitDifference = ((ask - bid) * splitPrices[item.symbol]).toFixed(2);
+    const splitDifference = (ask - bid) * splitPrices[item.symbol];
     const percentDifference = (splitDifference / bid) * 100;
     dataObject = {
       ...dataObject,
