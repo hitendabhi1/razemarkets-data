@@ -152,9 +152,9 @@ app.get("/prices", async (req, res) => {
 
       // Determine price direction (up, down, unchanged)
       if (previousPrices[symbol] !== undefined) {
-        if (currentPrice > previousPrices[symbol].bid) {
+        if (currentPrice > previousPrices[symbol]) {
           dataObject[symbol].biddirection = "up";
-        } else if (currentPrice < previousPrices[symbol].bid) {
+        } else if (currentPrice < previousPrices[symbol]) {
           dataObject[symbol].biddirection = "down";
         } else {
           dataObject[symbol].biddirection = "unchanged";
@@ -164,9 +164,9 @@ app.get("/prices", async (req, res) => {
       }
       // Determine price direction (up, down, unchanged)
       if (previousPrices[symbol] !== undefined) {
-        if (dailyChange > previousPrices[symbol].dailyChange) {
+        if (dailyChange > previousPrices[symbol]) {
           dataObject[symbol].percentagedirection = "up";
-        } else if (dailyChange < previousPrices[symbol].dailyChange) {
+        } else if (dailyChange < previousPrices[symbol]) {
           dataObject[symbol].percentagedirection = "down";
         } else {
           dataObject[symbol].percentagedirection = "unchanged";
