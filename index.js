@@ -83,7 +83,7 @@ let previousPrices = {};
 
 // app.get("/spreads", async (req, res) => {
 //   await fetch(
-//     "http://212.117.171.68:5000/SymbolParamsMany?id=12a9d189-4513-4438-999f-86429849fe5b&symbols=AMZN&symbols=TSLA&symbols=AAPL&symbols=GOOGL&symbols=NVDA&symbols=USDJPY&symbols=EURUSD&symbols=GBPUSD&symbols=USDCAD&symbols=EURGBP&symbols=XAUUSD&symbols=XAGUSD&symbols=WTIUSD&symbols=SPXUSD&symbols=DJIUSD&symbols=NDXUSD&symbols=FTSGBP&symbols=DAXEUR&symbols=BTCUSD&symbols=ETHUSD&symbols=XRPUSD&symbols=LTCUSD&symbols=ADAUSD&symbols=BRNUSD&symbols=NGCUSDlimit=10000"
+//     "http://212.117.171.68:5051/SymbolParamsMany?id=12a9d189-4513-4438-999f-86429849fe5b&symbols=AMZN&symbols=TSLA&symbols=AAPL&symbols=GOOGL&symbols=NVDA&symbols=USDJPY&symbols=EURUSD&symbols=GBPUSD&symbols=USDCAD&symbols=EURGBP&symbols=XAUUSD&symbols=XAGUSD&symbols=WTIUSD&symbols=SPXUSD&symbols=DJIUSD&symbols=NDXUSD&symbols=FTSGBP&symbols=DAXEUR&symbols=BTCUSD&symbols=ETHUSD&symbols=XRPUSD&symbols=LTCUSD&symbols=ADAUSD&symbols=BRNUSD&symbols=NGCUSDlimit=10000"
 //   )
 //     .then((response) => response.text())
 //     .then((result) => {
@@ -110,7 +110,7 @@ let previousPrices = {};
 
 app.get("/prices", async (req, res) => {
   const url =
-    "http://212.117.171.68:5000/Connect?user=100476&password=T%2BDmV0Kk&host=57.128.140.226&port=443";
+    "http://212.117.171.68:5051/Connect?user=100476&password=T%2BDmV0Kk&host=57.128.140.226&port=443";
 
   try {
     const response = await fetch(url, {
@@ -124,11 +124,11 @@ app.get("/prices", async (req, res) => {
     const textData = await response.text();
 
     const pricesData = await fetchData(
-      `http://212.117.171.68:5000/GetQuoteMany?id=${textData}&symbols=AMZN&symbols=TSLA&symbols=AAPL&symbols=GOOGL&symbols=NVDA&symbols=USDJPY&symbols=EURUSD&symbols=GBPUSD&symbols=USDCAD&symbols=EURGBP&symbols=XAUUSD&symbols=XAGUSD&symbols=WTIUSD&symbols=SPXUSD&symbols=DJIUSD&symbols=NDXUSD&symbols=FTSGBP&symbols=DAXEUR&symbols=BTCUSD&symbols=ETHUSD&symbols=XRPUSD&symbols=LTCUSD&symbols=ADAUSD&symbols=BRNUSD&symbols=NGCUSD`
+      `http://212.117.171.68:5051/GetQuoteMany?id=${textData}&symbols=AMZN&symbols=TSLA&symbols=AAPL&symbols=GOOGL&symbols=NVDA&symbols=USDJPY&symbols=EURUSD&symbols=GBPUSD&symbols=USDCAD&symbols=EURGBP&symbols=XAUUSD&symbols=XAGUSD&symbols=WTIUSD&symbols=SPXUSD&symbols=DJIUSD&symbols=NDXUSD&symbols=FTSGBP&symbols=DAXEUR&symbols=BTCUSD&symbols=ETHUSD&symbols=XRPUSD&symbols=LTCUSD&symbols=ADAUSD&symbols=BRNUSD&symbols=NGCUSD`
     );
 
     const openCloseData = await fetchData(
-      `http://212.117.171.68:5000/PriceHistoryTodayMany?id=${textData}&symbols=AMZN&symbols=TSLA&symbols=AAPL&symbols=GOOGL&symbols=NVDA&symbols=USDJPY&symbols=EURUSD&symbols=GBPUSD&symbols=USDCAD&symbols=EURGBP&symbols=XAUUSD&symbols=XAGUSD&symbols=WTIUSD&symbols=SPXUSD&symbols=DJIUSD&symbols=NDXUSD&symbols=FTSGBP&symbols=DAXEUR&symbols=BTCUSD&symbols=ETHUSD&symbols=XRPUSD&symbols=LTCUSD&symbols=ADAUSD&symbols=BRNUSD&symbols=NGCUSD&timeFrame=1440`
+      `http://212.117.171.68:5051/PriceHistoryTodayMany?id=${textData}&symbols=AMZN&symbols=TSLA&symbols=AAPL&symbols=GOOGL&symbols=NVDA&symbols=USDJPY&symbols=EURUSD&symbols=GBPUSD&symbols=USDCAD&symbols=EURGBP&symbols=XAUUSD&symbols=XAGUSD&symbols=WTIUSD&symbols=SPXUSD&symbols=DJIUSD&symbols=NDXUSD&symbols=FTSGBP&symbols=DAXEUR&symbols=BTCUSD&symbols=ETHUSD&symbols=XRPUSD&symbols=LTCUSD&symbols=ADAUSD&symbols=BRNUSD&symbols=NGCUSD&timeFrame=1440`
     );
 
     let dataObject = formatData(pricesData);

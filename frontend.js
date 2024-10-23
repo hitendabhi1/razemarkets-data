@@ -1,36 +1,64 @@
 async function loadData() {
   try {
-    const response = await fetch("http://localhost:3001/prices");
+    const response = await fetch(
+      "https://razemarkets-data.onrender.com/prices"
+    );
     const data = await response.json();
 
     Object.keys(data).forEach((symbol) => {
       const item = data[symbol];
 
       // Select DOM elements for each symbol
-      const nameElement = document.querySelector(
+      const nameElements = document.querySelectorAll(
         `.${symbol.toString().toLowerCase()}-name`
       );
-      const buyElement = document.querySelector(
+      const buyElements = document.querySelectorAll(
         `.${symbol.toString().toLowerCase()}-buy`
       );
-      const sellElement = document.querySelector(
+      const sellElements = document.querySelectorAll(
         `.${symbol.toString().toLowerCase()}-sell`
       );
-      const spreadElement = document.querySelector(
+      const spreadElements = document.querySelectorAll(
         `.${symbol.toString().toLowerCase()}-spread`
       );
-      const dailyChange = document.querySelector(
+      const dailyChanges = document.querySelectorAll(
         `.${symbol.toString().toLowerCase()}-dailychange`
       );
 
       // Update DOM elements if they exist
-      if (nameElement) nameElement.innerText = symbol;
-      if (buyElement) buyElement.innerText = item.bid ?? "N/A";
-      // if (sellElement) sellElement.innerText = item.ask ?? "N/A";
-      if (dailyChange)
-        dailyChange.innerText = `% ${item.percentDifference}` ?? "N/A";
-      if (spreadElement && typeof item.split === "number") {
-        spreadElement.innerText = item.split.toFixed(5);
+      if (nameElements) {
+        nameElements.forEach((nameElement) => {
+          nameElement.innerText = symbol;
+        });
+      }
+      if (buyElements) {
+        buyElements.forEach((buyElement) => {
+          buyElement.innerText = item.bid ?? "N/A";
+
+          // Remove old direction classes and add the new one
+          buyElement.classList.remove("up", "down", "unchanged");
+          if (item.biddirection) {
+            buyElement.classList.add(item.biddirection);
+          }
+        });
+      }
+
+      if (dailyChanges) {
+        dailyChanges.forEach((dailyChange) => {
+          dailyChange.innerText = `${item.dailyChange}` ?? "N/A";
+
+          // Remove old direction classes and add the new one
+          dailyChange.classList.remove("up", "down", "unchanged");
+          if (item.percentagedirection) {
+            dailyChange.classList.add(item.percentagedirection);
+          }
+        });
+      }
+
+      if (spreadElements && typeof item.split === "number") {
+        spreadElements.forEach((spreadElement) => {
+          spreadElement.innerText = item.split.toFixed(2);
+        });
       }
     });
   } catch (error) {
@@ -38,6 +66,5 @@ async function loadData() {
   }
 }
 
-// Optionally refresh every 10 seconds
-// loadData();
+// Optionally refresh every second
 setInterval(loadData, 1000);
