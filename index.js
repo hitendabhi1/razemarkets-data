@@ -6,7 +6,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const port = 3001;
+const port = 3002;
 
 app.get("/getCoupon", async (req, res) => {
   const consumerKey = "ck_2a0a8dbfc93b28c02e37470fda71d0f816d99c5d";
