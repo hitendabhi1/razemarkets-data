@@ -177,9 +177,11 @@ app.get("/prices", async (req, res) => {
         dataObject[symbol].percentagedirection = "new"; // First-time fetch, no previous data
       }
 
-      dataObject[symbol].percentagedirection = dailyChange.includes("-")
-        ? "down"
-        : "up";
+      if (dailyChange !== undefined) {
+        dataObject[symbol].percentagedirection = dailyChange.includes("-")
+          ? "down"
+          : "up";
+      }
 
       // Store the current price for the next comparison
       previousPrices[symbol] = currentPrice;
