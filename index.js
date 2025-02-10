@@ -136,13 +136,14 @@ app.get("/prices", async (req, res) => {
     // Add dailyChange to the dataObject
 
     openCloseData.forEach(({ symbol, bars }) => {
-      // console.log(lastBar);
-      const dailyChange = calculatePercentageChange(
-        bars.openPrice,
-        bars.closePrice
-      );
-      if (dataObject[symbol]) {
-        dataObject[symbol].dailyChange = dailyChange.toFixed(2) + "%";
+      if (bars.length > 0) {
+        // Ensure bars array is not empty
+        const { openPrice, closePrice } = bars[bars.length - 1]; // Get latest bar
+        const dailyChange = calculatePercentageChange(openPrice, closePrice);
+
+        if (dataObject[symbol]) {
+          dataObject[symbol].dailyChange = dailyChange.toFixed(2) + "%";
+        }
       }
     });
 
@@ -176,11 +177,9 @@ app.get("/prices", async (req, res) => {
         dataObject[symbol].percentagedirection = "new"; // First-time fetch, no previous data
       }
 
-      // console.log(dataObject[symbol]);
-      // why is this here?
-      // dataObject[symbol].percentagedirection = dailyChange.includes("-")
-      //   ? "down"
-      //   : "up";
+      dataObject[symbol].percentagedirection = dailyChange.includes("-")
+        ? "down"
+        : "up";
 
       // Store the current price for the next comparison
       previousPrices[symbol] = currentPrice;
