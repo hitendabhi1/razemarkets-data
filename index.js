@@ -134,11 +134,12 @@ app.get("/prices", async (req, res) => {
     let dataObject = formatData(pricesData);
 
     // Add dailyChange to the dataObject
+
     openCloseData.forEach(({ symbol, bars }) => {
-      const lastBar = bars[bars.length - 1];
+      // console.log(lastBar);
       const dailyChange = calculatePercentageChange(
-        lastBar.openPrice,
-        lastBar.closePrice
+        bars.openPrice,
+        bars.closePrice
       );
       if (dataObject[symbol]) {
         dataObject[symbol].dailyChange = dailyChange.toFixed(2) + "%";
@@ -163,20 +164,23 @@ app.get("/prices", async (req, res) => {
         dataObject[symbol].biddirection = "new"; // First-time fetch, no previous data
       }
       // // Determine price direction (up, down, unchanged)
-      // if (previousPrices[symbol] !== undefined) {
-      //   if (dailyChange > previousPrices[symbol]) {
-      //     dataObject[symbol].percentagedirection = "up";
-      //   } else if (dailyChange < previousPrices[symbol]) {
-      //     dataObject[symbol].percentagedirection = "down";
-      //   } else {
-      //     dataObject[symbol].percentagedirection = "unchanged";
-      //   }
-      // } else {
-      //   dataObject[symbol].percentagedirection = "new"; // First-time fetch, no previous data
-      // }
-      dataObject[symbol].percentagedirection = dailyChange.includes("-")
-        ? "down"
-        : "up";
+      if (previousPrices[symbol] !== undefined) {
+        if (dailyChange > previousPrices[symbol]) {
+          dataObject[symbol].percentagedirection = "up";
+        } else if (dailyChange < previousPrices[symbol]) {
+          dataObject[symbol].percentagedirection = "down";
+        } else {
+          dataObject[symbol].percentagedirection = "unchanged";
+        }
+      } else {
+        dataObject[symbol].percentagedirection = "new"; // First-time fetch, no previous data
+      }
+
+      // console.log(dataObject[symbol]);
+      // why is this here?
+      // dataObject[symbol].percentagedirection = dailyChange.includes("-")
+      //   ? "down"
+      //   : "up";
 
       // Store the current price for the next comparison
       previousPrices[symbol] = currentPrice;
